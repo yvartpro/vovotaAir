@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Vovota</string>
+    <string name="app_name" translatable="false">Vovota Air</string>
     <!--    auth screen  -->
     <string name="auth_name">Username</string>
     <string name="auth_pwd">Password</string>
@@ -11,5 +11,5 @@
     <string name="auth_already">Already have an account ?</string>
     <string name="auth_r_now">Register now</string>
     <string name="auth_l_here">Login here</string>
-    <string name="call_title">Call</string>
+    <string name="call_title" translatable="false">Vovota Air</string>
 </resources>

@@ -9,17 +9,17 @@ import io.ktor.http.contentType
 
 class AuthRepository {
     private val client = ApiService.client
-    private val baseUrl = "https://mib.vovota.bi"
+    private val baseUrl = "https://air.vovota.bi"
 
     suspend fun login(username: String, password: String): AuthResponse {
-        return client.post("$baseUrl/token/") {
+        return client.post("$baseUrl/login/") {
             contentType(ContentType.Application.Json)
             setBody(AuthRequest(username, password))
         }.body()
     }
 
     suspend fun register(username: String, password: String): AuthResponse {
-        return client.post("$baseUrl/api/register/") {
+        return client.post("$baseUrl/api/user/") {
             contentType(ContentType.Application.Json)
             setBody(AuthRequest(username, password))
         }.body()

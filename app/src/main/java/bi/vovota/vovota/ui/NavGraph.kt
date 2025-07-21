@@ -31,7 +31,7 @@ fun VovotaNavGraph() {
             modifier = Modifier.padding(innerP)
         ) {
             composable(route = Screen.CallScreen.route) {
-                CallScreen(navController)
+                CallScreen()
             }
             composable(route = Screen.AuthScreen.route) {
                 AuthScreen(
