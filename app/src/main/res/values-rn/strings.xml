@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auth_name">Agatazirano</string>
+    <string name="auth_pwd">Kabanga</string>
+    <string name="auth_pwd_v">Kwemeza kabanga</string>
+    <string name="auth_login">Injira</string>
+    <string name="auth_register">Iyandikishe</string>
+    <string name="loading">Tenyenya...</string>
+    <string name="auth_new">Mwoba mutariyandikisha ?</string>
+    <string name="auth_already">Musanze mwariyandikishije ?</string>
+    <string name="auth_r_now">Mwiyandikishe ubu nyene</string>
+    <string name="auth_l_here">Injira</string>
+</resources>
