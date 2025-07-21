@@ -32,16 +32,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import bi.vovota.vovota.ui.Screen
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun AuthScreen(
-    viewModel: AuthViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel,
     modifier: Modifier,
     navController: NavHostController
 ) {
-    val state by viewModel.authState.collectAsState()
-    val token by viewModel.tokenStateFlow.collectAsState()
+    val state by authViewModel.authState.collectAsState()
+    val token by authViewModel.tokenStateFlow.collectAsState()
     var isLogin by remember { mutableStateOf(true) }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -78,8 +79,8 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(16.dp))
         when (state) {
             is AuthState.Loading -> Text(stringResource(R.string.loading))
-            is AuthState.Success -> Text("Welcome! Token: ${(state as AuthState.Success).token}")
-            is AuthState.Error -> Text("Error: ${(state as AuthState.Error).message}")
+            is AuthState.Success -> isLogin = true
+            is AuthState.Error -> Text("Registration failed, try again")
             else -> {}
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -122,10 +123,10 @@ fun AuthScreen(
             onClick = {
                 focusManager.clearFocus()
                 if(isLogin) {
-                    viewModel.login(username, password)
+                    authViewModel.login(username, password)
                 } else {
                     if (password == passwordVerify) {
-                        viewModel.register(username, password)
+                        authViewModel.register(username, password)
                     } else {
                         msg = "Password not matching"
                     }
@@ -141,14 +142,15 @@ fun AuthScreen(
             is AuthState.Success -> {
                 val loginToken = (state as AuthState.Success).token
                 LaunchedEffect(loginToken) {
-                    viewModel.saveToken(loginToken)
+                    authViewModel.saveToken(loginToken)
                 }
                 //Text("Login Success! Token: $token")
                 navController.navigate(Screen.CallScreen.route)
             }
 
             is AuthState.Error -> {
-                Text("Login Failed: ${(state as AuthState.Error).message}")
+                Text("Login Failed, try again")
+                println("Login Failed: ${(state as AuthState.Error).message}")
             }
 
             is AuthState.Loading -> {

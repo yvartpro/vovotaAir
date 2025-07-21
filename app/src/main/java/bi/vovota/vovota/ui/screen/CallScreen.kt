@@ -27,7 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import bi.vovota.vovota.ui.Screen
 import bi.vovota.vovota.ui.theme.blueVt
+import bi.vovota.vovota.viewmodel.AuthViewModel
 
 val backgroundColor = Color(0xFFF0F2F5)
 val surfaceColor = Color(0xFFFFFFFF)
@@ -37,10 +40,19 @@ val callButtonColor = blueVt//Color(0xFF4CAF50)
 val onCallButtonColor = Color.White
 
 @Composable
-fun CallScreen() {
+fun CallScreen(
+    authViewModel: AuthViewModel,
+    navController: NavHostController
+) {
+    val token by authViewModel.tokenStateFlow.collectAsState()
     var enteredNumber by remember { mutableStateOf("") }
     var callOngoing by remember { mutableStateOf(false) }
-
+println("Token is: $token")
+    LaunchedEffect(Unit) {
+        if (token.isNullOrBlank()) {
+            navController.navigate(Screen.AuthScreen.route)
+        }
+    }
     // Fake auto-end call after 3 seconds
     LaunchedEffect(callOngoing) {
         if (callOngoing) {
@@ -107,7 +119,7 @@ fun CallScreen() {
                     contentAlignment = Alignment.BottomCenter
                 ) {
                     Text(
-                        text = if (enteredNumber.isEmpty()) "Enter number" else enteredNumber,
+                        text = if (enteredNumber.isEmpty()) "" else enteredNumber,
                         fontSize = if (enteredNumber.length > 8) 38.sp else 48.sp,
                         color = if (enteredNumber.isEmpty()) subtleAccentColor else onSurfaceColor,
                         fontWeight = FontWeight.Light,

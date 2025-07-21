@@ -58,7 +58,8 @@ class AuthViewModel @Inject constructor(private val tokenManager: TokenManager) 
             _authState.value = AuthState.Loading
             try {
                 val response = repo.register(name, password)
-                _authState.value = AuthState.Success(response.access)
+                println("Resp: $response")
+                _authState.value = AuthState.Success(response.toString())
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "Register failed")
             }

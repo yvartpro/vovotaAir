@@ -10,6 +10,11 @@ data class AuthRequest(
 )
 
 @Serializable
+data class AuthRegister(
+    @SerialName("full_name") val name: String,
+    val password: String
+)
+@Serializable
 data class AuthResponse(
     val access: String,
     val refresh: String
