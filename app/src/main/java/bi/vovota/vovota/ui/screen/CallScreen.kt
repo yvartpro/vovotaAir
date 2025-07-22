@@ -1,5 +1,7 @@
 package bi.vovota.vovota.ui.screen
 
+import android.annotation.SuppressLint
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,28 +11,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material.icons.twotone.Add
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.twotone.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import bi.vovota.vovota.R
 import bi.vovota.vovota.ui.Screen
 import bi.vovota.vovota.ui.theme.blueVt
 import bi.vovota.vovota.viewmodel.AuthViewModel
+import bi.vovota.vovota.viewmodel.CallViewModel
+import bi.vovota.vovota.viewmodel.ContactViewModel
+import kotlinx.coroutines.launch
 
 val backgroundColor = Color(0xFFF0F2F5)
 val surfaceColor = Color(0xFFFFFFFF)
@@ -39,25 +45,30 @@ val subtleAccentColor = Color(0xFFD0D3D9)
 val callButtonColor = blueVt//Color(0xFF4CAF50)
 val onCallButtonColor = Color.White
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun CallScreen(
     authViewModel: AuthViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    callViewModel: CallViewModel,
+    contactViewModel: ContactViewModel
 ) {
     val token by authViewModel.tokenStateFlow.collectAsState()
-    var enteredNumber by remember { mutableStateOf("") }
-    var callOngoing by remember { mutableStateOf(false) }
-println("Token is: $token")
-    LaunchedEffect(Unit) {
-        if (token.isNullOrBlank()) {
-            navController.navigate(Screen.AuthScreen.route)
-        }
-    }
+    var enteredNumber = callViewModel.enteredNumber.collectAsState().value
+    var callOngoing = callViewModel.callOngoing.collectAsState().value
+    val scope = rememberCoroutineScope()
+
+    //check if user ia authenticated
+//    LaunchedEffect(Unit) {
+//        if (token.isNullOrBlank()) {
+//            navController.navigate(Screen.AuthScreen.route)
+//        }
+//    }
     // Fake auto-end call after 3 seconds
     LaunchedEffect(callOngoing) {
         if (callOngoing) {
-            kotlinx.coroutines.delay(3000)
-            callOngoing = false
+            kotlinx.coroutines.delay(60000)
+            callViewModel.endCall()
         }
     }
 
@@ -77,34 +88,35 @@ println("Token is: $token")
 
             // --- Call Status Text (Dynamic) ---
             AnimatedVisibility(visible = callOngoing) {
-                Row (
+                Column (
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ){
                     Text(
-                        text = "Calling...",
-                        color = Color.Red,
-                        fontSize = 16.sp,
+                        text = callViewModel.name.value,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 28.sp,
                         modifier = Modifier
                             .padding(bottom = 8.dp)
                     )
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(0.3f)
-                        .padding(horizontal = 24.dp, vertical = 32.dp),
-                    contentAlignment = Alignment.BottomCenter
-                ) {
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text =  enteredNumber,
-                        fontSize = if (enteredNumber.length > 8) 38.sp else 48.sp,
+                        fontSize = 28.sp,
                         color = if (enteredNumber.isEmpty()) subtleAccentColor else onSurfaceColor,
-                        fontWeight = FontWeight.Light,
+                        fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                         modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Calling...",
+                        color = Color.DarkGray,
+                        fontSize = 12.sp,
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
                     )
                 }
             }
@@ -120,7 +132,7 @@ println("Token is: $token")
                 ) {
                     Text(
                         text = if (enteredNumber.isEmpty()) "" else enteredNumber,
-                        fontSize = if (enteredNumber.length > 8) 38.sp else 48.sp,
+                        fontSize = 38.sp,
                         color = if (enteredNumber.isEmpty()) subtleAccentColor else onSurfaceColor,
                         fontWeight = FontWeight.Light,
                         textAlign = TextAlign.Center,
@@ -137,18 +149,23 @@ println("Token is: $token")
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     SmallActionButton(
-                        icon = Icons.TwoTone.Add,
+                        icon = R.drawable.ic_add_contact,
                         contentDescription = "Save Contact",
-                        onClick = { /* Save logic */ },
-                        enabled = enteredNumber.isNotEmpty()
+                        onClick = {
+                            if (enteredNumber.isNotEmpty()) {
+                                callViewModel.setContactNumber(enteredNumber)
+                                navController.navigate(Screen.AddEditContactScreen.route)
+                            }
+                        },
+                        enabled = enteredNumber.isNotEmpty(),
                     )
 
                     SmallActionButton(
-                        icon = Icons.Filled.ArrowBack,
+                        icon = R.drawable.ic_clear,
                         contentDescription = "Backspace",
                         onClick = {
                             if (enteredNumber.isNotEmpty()) {
-                                enteredNumber = enteredNumber.dropLast(1)
+                                callViewModel.backspace()
                             }
                         },
                         enabled = enteredNumber.isNotEmpty()
@@ -178,7 +195,7 @@ println("Token is: $token")
                             row.forEach { key ->
                                 DialPadButton(
                                     text = key,
-                                    onClick = { enteredNumber += key },
+                                    onClick = { callViewModel.appendDigit(key) },
                                     modifier = Modifier.size(64.dp) // Slightly smaller for better fit
                                 )
                             }
@@ -193,10 +210,16 @@ println("Token is: $token")
             Button(
                 onClick = {
                     if (!callOngoing && enteredNumber.isNotEmpty()) {
-                        callOngoing = true
+                        scope.launch {
+                            val user = contactViewModel.getContactByNumber(enteredNumber)
+                            callViewModel.startCall(user?.phoneNumber ?: enteredNumber, user?.name ?: "Unknown")
+                        }
+                    } else if (callOngoing) {
+                        callViewModel.endCall()
+                        callViewModel.clearNumber()
                     }
                 },
-                enabled = enteredNumber.length in 1..15,
+                enabled = enteredNumber.length in 1..5,
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
                     .height(64.dp)
@@ -244,7 +267,7 @@ fun DialPadButton(
 
 @Composable
 fun SmallActionButton(
-    icon: ImageVector,
+    @DrawableRes icon: Int,
     contentDescription: String,
     onClick: () -> Unit,
     enabled: Boolean,
@@ -274,7 +297,7 @@ fun SmallActionButton(
         )
     ) {
         Icon(
-            imageVector = icon,
+            painter = painterResource(icon),
             contentDescription = contentDescription,
             modifier = Modifier.size(24.dp)
         )

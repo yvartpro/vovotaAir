@@ -10,4 +10,5 @@
     <string name="auth_already">Vous avez deja un compte ?</string>
     <string name="auth_r_now">S\'enregister maintenant</string>
     <string name="auth_l_here">Connectez-vous</string>
+    <string name="auth_phone">Numero de telephone</string>
 </resources>

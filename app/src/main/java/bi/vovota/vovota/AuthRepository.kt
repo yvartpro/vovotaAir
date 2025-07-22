@@ -13,10 +13,10 @@ class AuthRepository {
     private val client = ApiService.client
     private val baseUrl = "https://air.vovota.bi"
 
-    suspend fun login(name: String, password: String): AuthResponse {
+    suspend fun login(phone: String, password: String): AuthResponse {
         return client.post("$baseUrl/api/login/") {
             contentType(ContentType.Application.Json)
-            setBody(AuthRequest(name, password))
+            setBody(AuthRequest(phone, password))
         }.body()
     }
 

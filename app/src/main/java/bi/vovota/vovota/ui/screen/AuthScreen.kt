@@ -45,6 +45,7 @@ fun AuthScreen(
     val token by authViewModel.tokenStateFlow.collectAsState()
     var isLogin by remember { mutableStateOf(true) }
     var username by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("")}
     var password by remember { mutableStateOf("") }
     var passwordVerify by remember { mutableStateOf("") }
     var msg by remember { mutableStateOf("") }
@@ -90,13 +91,24 @@ fun AuthScreen(
                 .padding(vertical = 16.dp, horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ){
-            InputField(
-                value = username,
-                onValueChange = { username = it },
-                labelText = stringResource(R.string.auth_name),
-                keyboardType = KeyboardType.Text,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (isLogin) {
+                InputField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    labelText = stringResource(R.string.auth_name),
+                    keyboardType = KeyboardType.Phone,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            if (!isLogin) {
+                InputField(
+                    value = username,
+                    onValueChange = { username = it },
+                    labelText = stringResource(R.string.auth_name),
+                    keyboardType = KeyboardType.Text,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             PasswordField(
                 value = password,
                 onValueChange = { password = it },
@@ -123,7 +135,7 @@ fun AuthScreen(
             onClick = {
                 focusManager.clearFocus()
                 if(isLogin) {
-                    authViewModel.login(username, password)
+                    authViewModel.login(phone, password)
                 } else {
                     if (password == passwordVerify) {
                         authViewModel.register(username, password)

@@ -10,4 +10,5 @@
     <string name="auth_already">Musanze mwariyandikishije ?</string>
     <string name="auth_r_now">Mwiyandikishe ubu nyene</string>
     <string name="auth_l_here">Injira</string>
+    <string name="auth_phone">Inomero za terefone</string>
 </resources>
